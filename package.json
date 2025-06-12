@@ -1,0 +1,54 @@
+{
+  "name": "trello-desktop-mcp",
+  "version": "1.0.0",
+  "description": "Trello integration for Claude Desktop via Model Context Protocol (MCP)",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "rebuild": "npm run clean && npm run build",
+    "type-check": "tsc --noEmit",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "trello",
+    "claude",
+    "claude-desktop",
+    "api",
+    "integration",
+    "productivity",
+    "project-management"
+  ],
+  "author": "Trello Desktop MCP Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/trello-desktop-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/trello-desktop-mcp/issues"
+  },
+  "homepage": "https://github.com/yourusername/trello-desktop-mcp#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.3",
+    "typescript": "^5.7.3"
+  },
+  "files": [
+    "dist/**/*",
+    "src/**/*",
+    "README.md",
+    "LICENSE",
+    "package.json",
+    "tsconfig.json"
+  ]
+}
