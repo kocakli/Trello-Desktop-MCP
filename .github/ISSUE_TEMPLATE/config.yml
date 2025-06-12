@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentation Wiki
+    url: https://github.com/kocakli/trello-desktop-mcp/wiki
+    about: Check our comprehensive wiki for usage guides and troubleshooting
+  - name: 🔧 Troubleshooting Guide  
+    url: https://github.com/kocakli/trello-desktop-mcp/wiki/Troubleshooting
+    about: Common issues and solutions
+  - name: 💬 GitHub Discussions
+    url: https://github.com/kocakli/trello-desktop-mcp/discussions
+    about: Ask questions and discuss ideas with the community

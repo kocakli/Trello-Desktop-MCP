@@ -1,4 +1,6 @@
-import type { Request, Response } from 'express';
+// Express is optional for health endpoints
+type Request = any;
+type Response = any;
 import { insights } from './appInsights.js';
 import { logger } from './logger.js';
 

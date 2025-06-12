@@ -1,123 +1,67 @@
-import * as appInsights from 'applicationinsights';
-
+// Application Insights - No-op implementation for basic usage
 interface TelemetryData {
   [key: string]: any;
 }
 
 class ApplicationInsights {
-  private client: appInsights.TelemetryClient | null = null;
-  private isInitialized = false;
+  private isEnabled = false;
 
   initialize() {
+    // Check if Application Insights is configured
     const instrumentationKey = process.env.APPLICATIONINSIGHTS_CONNECTION_STRING || 
                               process.env.APPINSIGHTS_INSTRUMENTATIONKEY;
     
-    if (!instrumentationKey) {
+    if (instrumentationKey) {
+      try {
+        // Try to load Application Insights if available
+        const appInsights = require('applicationinsights');
+        appInsights.setup(instrumentationKey).start();
+        this.isEnabled = true;
+        console.log('✅ Application Insights initialized');
+      } catch (error) {
+        console.warn('Application Insights not available, using no-op implementation');
+      }
+    } else {
       console.warn('Application Insights not configured - telemetry disabled');
-      return;
-    }
-
-    try {
-      // Configure Application Insights
-      appInsights.setup(instrumentationKey)
-        .setAutoDependencyCorrelation(true)
-        .setAutoCollectRequests(true)
-        .setAutoCollectPerformance(true, true)
-        .setAutoCollectExceptions(true)
-        .setAutoCollectDependencies(true)
-        .setAutoCollectConsole(true)
-        .setUseDiskRetryCaching(true)
-        .setSendLiveMetrics(true)
-        .setDistributedTracingMode(appInsights.DistributedTracingModes.AI_AND_W3C);
-
-      // Set cloud role name for better service map visualization
-      appInsights.defaultClient.context.tags[appInsights.defaultClient.context.keys.cloudRole] = 'trello-mcp-server';
-      appInsights.defaultClient.context.tags[appInsights.defaultClient.context.keys.cloudRoleInstance] = process.env.WEBSITE_INSTANCE_ID || 'local';
-
-      appInsights.start();
-      this.client = appInsights.defaultClient;
-      this.isInitialized = true;
-      
-      console.log('✅ Application Insights initialized successfully');
-    } catch (error) {
-      console.error('❌ Failed to initialize Application Insights:', error);
     }
   }
 
-  trackEvent(name: string, properties?: TelemetryData, measurements?: TelemetryData) {
-    if (!this.isInitialized || !this.client) return;
-    
-    const telemetryData: any = { name };
-    if (properties) telemetryData.properties = properties;
-    if (measurements) telemetryData.measurements = measurements;
-    
-    this.client.trackEvent(telemetryData);
+  trackEvent(_name: string, _properties?: TelemetryData, _measurements?: TelemetryData) {
+    if (!this.isEnabled) return;
+    // No-op implementation - could be extended with actual tracking
   }
 
-  trackRequest(name: string, url: string, duration: number, resultCode: string | number, success: boolean, properties?: TelemetryData) {
-    if (!this.isInitialized || !this.client) return;
-    
-    const telemetryData: any = {
-      name,
-      url,
-      duration,
-      resultCode: resultCode.toString(),
-      success
-    };
-    if (properties) telemetryData.properties = properties;
-    
-    this.client.trackRequest(telemetryData);
+  trackRequest(_name: string, _url: string, _duration: number, _resultCode: string | number, _success: boolean, _properties?: TelemetryData) {
+    if (!this.isEnabled) return;
+    // No-op implementation
   }
 
-  trackDependency(dependencyTypeName: string, name: string, data: string, duration: number, success: boolean, resultCode?: string, properties?: TelemetryData) {
-    if (!this.isInitialized || !this.client) return;
-    
-    const telemetryData: any = {
-      dependencyTypeName,
-      name,
-      data,
-      duration,
-      success,
-      resultCode: resultCode || (success ? '200' : '500')
-    };
-    if (properties) telemetryData.properties = properties;
-    
-    this.client.trackDependency(telemetryData);
+  trackDependency(_dependencyTypeName: string, _name: string, _data: string, _duration: number, _success: boolean, _resultCode?: string, _properties?: TelemetryData) {
+    if (!this.isEnabled) return;
+    // No-op implementation
   }
 
-  trackException(exception: Error, properties?: TelemetryData) {
-    if (!this.isInitialized || !this.client) return;
-    
-    const telemetryData: any = { exception };
-    if (properties) telemetryData.properties = properties;
-    
-    this.client.trackException(telemetryData);
+  trackException(exception: Error, _properties?: TelemetryData) {
+    if (!this.isEnabled) return;
+    // No-op implementation - could log to console in development
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Exception tracked:', exception.message);
+    }
   }
 
-  trackMetric(name: string, value: number, properties?: TelemetryData) {
-    if (!this.isInitialized || !this.client) return;
-    
-    const telemetryData: any = { name, value };
-    if (properties) telemetryData.properties = properties;
-    
-    this.client.trackMetric(telemetryData);
+  trackMetric(_name: string, _value: number, _properties?: TelemetryData) {
+    if (!this.isEnabled) return;
+    // No-op implementation
   }
 
-  trackTrace(message: string, severity?: appInsights.Contracts.SeverityLevel, properties?: TelemetryData) {
-    if (!this.isInitialized || !this.client) return;
-    
-    const telemetryData: any = {
-      message,
-      severity: severity || appInsights.Contracts.SeverityLevel.Information
-    };
-    if (properties) telemetryData.properties = properties;
-    
-    this.client.trackTrace(telemetryData);
+  trackTrace(_message: string, _severity?: number, _properties?: TelemetryData) {
+    if (!this.isEnabled) return;
+    // No-op implementation
   }
 
   flush() {
-    if (!this.isInitialized || !this.client) return;
-    this.client.flush();
+    if (!this.isEnabled) return;
+    // No-op implementation
   }
 }
 
