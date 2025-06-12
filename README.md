@@ -37,7 +37,7 @@ A Model Context Protocol (MCP) server that provides comprehensive Trello integra
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/trello-desktop-mcp.git
+   git clone https://github.com/kocakli/trello-desktop-mcp.git
    cd trello-desktop-mcp
    ```
 
