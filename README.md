@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/kocakli-trello-desktop-mcp-badge.png)](https://mseep.ai/app/kocakli-trello-desktop-mcp)
+
 # Trello Desktop MCP
 
 A Model Context Protocol (MCP) server that provides comprehensive Trello integration for Claude Desktop. This server enables Claude to interact with Trello boards, cards, lists, and more through a secure local connection.
