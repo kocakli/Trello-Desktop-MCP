@@ -451,7 +451,7 @@ export class TrelloClient {
       `/cards/${cardId}/actions/comments`,
       {
         method: 'POST',
-        params: { text: encodeURIComponent(text) }
+        body: JSON.stringify({ text })
       },
       `Add comment to card ${cardId}`
     );
