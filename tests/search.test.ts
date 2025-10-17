@@ -1,66 +1,42 @@
 import { handleTrelloSearch } from '../src/tools/search.js';
 import { jest } from '@jest/globals';
+import { TrelloClient } from '../src/trello/client';
 
-// Mock the TrelloClient module
-jest.mock('../src/trello/client.js', () => {
-  const actualTrelloClient = jest.requireActual('../src/trello/client.js');
-
-  return {
-    ...actualTrelloClient, // Use actual exports for everything else
-    TrelloClient: jest.fn().mockImplementation(() => {
-      return {
-        // Mock all methods of TrelloClient here
-        getMyBoards: jest.fn(),
-        getBoard: jest.fn(),
-        getBoardLists: jest.fn(),
-        createCard: jest.fn(),
-        updateCard: jest.fn(),
-        moveCard: jest.fn(),
-        getCard: jest.fn(),
-        deleteCard: jest.fn(),
-        getBoardMembers: jest.fn(),
-        getBoardLabels: jest.fn(),
-        search: jest.fn(),
-        getListCards: jest.fn(),
-        addCommentToCard: jest.fn(),
-        createList: jest.fn(),
-        getMember: jest.fn(),
-        getCurrentUser: jest.fn(),
-        getBoardCards: jest.fn(),
-        getCardActions: jest.fn(),
-        getCardAttachments: jest.fn(),
-        getCardChecklists: jest.fn(),
-      };
-    }),
-  };
-});
-
-// Import TrelloClient after jest.mock
-import { TrelloClient } from '../src/trello/client.js';
+const MOCK_BOARD_ID = '1a2b3c4d5e6f7a8b9c0d1e2f';
+const MOCK_CARD_ID = '64b7f2c5d9a1b3c4d5e6f7a8';
+const MOCK_LIST_ID = '5f6e7d8c9b0a1e2d3c4b5a6f';
+const MOCK_MEMBER_ID = 'abcdefabcdefabcdefabcd';
+const MOCK_ORG_ID = '0f9e8d7c6b5a4321fedcba98';
 
 describe('Search Tool', () => {
-
-  beforeEach(() => {
-    jest.clearAllMocks();
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   describe('handleTrelloSearch', () => {
     test('should return search results on success', async () => {
       const mockSearchResults = {
-        boards: [{ id: 'board1', name: 'Search Board 1', desc: 'Desc', shortUrl: 'url', closed: false, dateLastActivity: '2023-01-01' }],
-        cards: [{ id: 'card1', name: 'Search Card 1', desc: 'Desc', shortUrl: 'url', idList: 'list1', idBoard: 'board1', due: null, closed: false, labels: [] }],
-        members: [{ id: 'member1', fullName: 'Search Member 1', username: 'searchmember', bio: 'Bio', url: 'url' }],
-        organizations: [{ id: 'org1', name: 'Search Org 1', displayName: 'Search Org 1 Display', desc: 'Desc', url: 'url' }]
+        boards: [{ id: MOCK_BOARD_ID, name: 'Search Board 1', desc: 'Desc', shortUrl: 'url', closed: false, dateLastActivity: '2023-01-01' }],
+        cards: [{ id: MOCK_CARD_ID, name: 'Search Card 1', desc: 'Desc', shortUrl: 'url', idList: MOCK_LIST_ID, idBoard: MOCK_BOARD_ID, due: null, closed: false, labels: [] }],
+        members: [{ id: MOCK_MEMBER_ID, fullName: 'Search Member 1', username: 'searchmember', bio: 'Bio', url: 'url' }],
+        organizations: [{ id: MOCK_ORG_ID, name: 'Search Org 1', displayName: 'Search Org 1 Display', desc: 'Desc', url: 'url' }]
       };
-      (TrelloClient as jest.Mock).mock.results[0].value.search.mockResolvedValueOnce({ data: mockSearchResults, rateLimit: { limit: 100, remaining: 99, resetTime: 123 } });
+
+      const searchSpy = jest
+        .spyOn(TrelloClient.prototype, 'search')
+        .mockResolvedValue({ data: mockSearchResults, rateLimit: { limit: 100, remaining: 99, resetTime: 123 } });
 
       const args = { apiKey: 'testKey', token: 'testToken', query: 'test query', modelTypes: ['boards', 'cards'] };
       const result = await handleTrelloSearch(args);
 
-      expect((TrelloClient as jest.Mock).mock.results[0].value.search).toHaveBeenCalledWith('test query', { modelTypes: ['boards', 'cards'] });
-      expect(result.content[0].text).toContain('Search results for: "test query"');
-      expect(result.content[0].text).toContain('Search Board 1');
-      expect(result.content[0].text).toContain('Search Card 1');
+      expect(searchSpy).toHaveBeenCalledWith('test query', { modelTypes: ['boards', 'cards'] });
+
+      const payload = JSON.parse(result.content[0].text);
+
+      expect(payload.summary).toBe('Search results for: "test query"');
+      expect(payload.boards[0].name).toBe('Search Board 1');
+      expect(payload.cards[0].name).toBe('Search Card 1');
+      expect(payload.totalResults).toEqual({ boards: 1, cards: 1, members: 1, organizations: 1 });
       expect(result.isError).toBeUndefined();
     });
 

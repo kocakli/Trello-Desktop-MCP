@@ -1,10 +1,10 @@
 import { logger } from '../utils/logger.js';
 import { insights } from '../utils/appInsights.js';
-import type { 
-  TrelloCredentials, 
-  TrelloBoard, 
-  TrelloList, 
-  TrelloCard, 
+import type {
+  TrelloCredentials,
+  TrelloBoard,
+  TrelloList,
+  TrelloCard,
   CreateCardRequest,
   UpdateCardRequest,
   MoveCardRequest,
@@ -12,7 +12,6 @@ import type {
   RateLimitInfo,
   TrelloApiResponse
 } from '../types/trello.js';
-
 interface RetryConfig {
   maxRetries: number;
   baseDelay: number;

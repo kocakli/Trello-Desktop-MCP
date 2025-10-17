@@ -1,4 +1,4 @@
-import { TrelloClient } from '../src/trello/client.js';
+import { TrelloClient } from '../src/trello/client';
 import { jest } from '@jest/globals';
 
 describe('TrelloClient with internal mock', () => {
