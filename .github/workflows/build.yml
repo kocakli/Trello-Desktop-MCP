@@ -30,7 +30,7 @@ jobs:
       run: npm run build
 
     - name: Test
-      run: npm test
+      run: npm test -- --runInBand --verbose
 
     - name: Type check
       run: npm run type-check
