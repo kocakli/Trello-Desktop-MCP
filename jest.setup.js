@@ -1,0 +1,1 @@
+jest.mock('./src/trello/client.js');

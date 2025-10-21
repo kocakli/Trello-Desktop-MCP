@@ -5,6 +5,7 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -27,6 +28,9 @@ jobs:
     
     - name: Build
       run: npm run build
-    
+
+    - name: Test
+      run: npm test -- --runInBand --verbose
+
     - name: Type check
       run: npm run type-check
