@@ -45,19 +45,19 @@ describe('validation utilities', () => {
 
   describe('listBoardsSchema and validateListBoards', () => {
     it('should validate correct list boards parameters', () => {
-      const validParams = { apiKey: 'someApiKey', token: 'someToken', filter: 'all' };
+      const validParams = { filter: 'all' };
       expect(() => listBoardsSchema.parse(validParams)).not.toThrow();
       expect(validateListBoards(validParams)).toEqual(validParams);
     });
 
     it('should validate list boards parameters with default filter', () => {
-      const validParams = { apiKey: 'someApiKey', token: 'someToken' };
+      const validParams = {};
       expect(() => listBoardsSchema.parse(validParams)).not.toThrow();
-      expect(validateListBoards(validParams)).toEqual({ ...validParams, filter: 'open' });
+      expect(validateListBoards(validParams)).toEqual({ filter: 'open' });
     });
 
     it('should reject list boards parameters with invalid filter', () => {
-      const invalidParams = { apiKey: 'someApiKey', token: 'someToken', filter: 'invalid' };
+      const invalidParams = { filter: 'invalid' };
       expect(() => listBoardsSchema.parse(invalidParams)).toThrow(ZodError);
       expect(() => validateListBoards(invalidParams)).toThrow(ZodError);
     });
@@ -65,19 +65,19 @@ describe('validation utilities', () => {
 
   describe('getBoardSchema and validateGetBoard', () => {
     it('should validate correct get board parameters', () => {
-      const validParams = { apiKey: 'someApiKey', token: 'someToken', boardId: '6512e4a208a3061f8a9e5a6a', includeDetails: true };
+      const validParams = { boardId: '6512e4a208a3061f8a9e5a6a', includeDetails: true };
       expect(() => getBoardSchema.parse(validParams)).not.toThrow();
       expect(validateGetBoard(validParams)).toEqual(validParams);
     });
 
     it('should validate get board parameters with default includeDetails', () => {
-      const validParams = { apiKey: 'someApiKey', token: 'someToken', boardId: '6512e4a208a3061f8a9e5a6a' };
+      const validParams = { boardId: '6512e4a208a3061f8a9e5a6a' };
       expect(() => getBoardSchema.parse(validParams)).not.toThrow();
       expect(validateGetBoard(validParams)).toEqual({ ...validParams, includeDetails: false });
     });
 
     it('should reject get board parameters with invalid boardId', () => {
-      const invalidParams = { apiKey: 'someApiKey', token: 'someToken', boardId: 'invalid' };
+      const invalidParams = { boardId: 'invalid' };
       expect(() => getBoardSchema.parse(invalidParams)).toThrow(ZodError);
       expect(() => validateGetBoard(invalidParams)).toThrow(ZodError);
     });
@@ -85,19 +85,19 @@ describe('validation utilities', () => {
 
   describe('getBoardListsSchema and validateGetBoardLists', () => {
     it('should validate correct get board lists parameters', () => {
-      const validParams = { apiKey: 'someApiKey', token: 'someToken', boardId: '6512e4a208a3061f8a9e5a6a', filter: 'closed' };
+      const validParams = { boardId: '6512e4a208a3061f8a9e5a6a', filter: 'closed' };
       expect(() => getBoardListsSchema.parse(validParams)).not.toThrow();
       expect(validateGetBoardLists(validParams)).toEqual(validParams);
     });
 
     it('should validate get board lists parameters with default filter', () => {
-      const validParams = { apiKey: 'someApiKey', token: 'someToken', boardId: '6512e4a208a3061f8a9e5a6a' };
+      const validParams = { boardId: '6512e4a208a3061f8a9e5a6a' };
       expect(() => getBoardListsSchema.parse(validParams)).not.toThrow();
       expect(validateGetBoardLists(validParams)).toEqual({ ...validParams, filter: 'open' });
     });
 
     it('should reject get board lists parameters with invalid boardId', () => {
-      const invalidParams = { apiKey: 'someApiKey', token: 'someToken', boardId: 'invalid' };
+      const invalidParams = { boardId: 'invalid' };
       expect(() => getBoardListsSchema.parse(invalidParams)).toThrow(ZodError);
       expect(() => validateGetBoardLists(invalidParams)).toThrow(ZodError);
     });
@@ -105,27 +105,25 @@ describe('validation utilities', () => {
 
   describe('createCardSchema and validateCreateCard', () => {
     it('should validate correct create card parameters', () => {
-      const validParams = { apiKey: 'someApiKey', token: 'someToken', name: 'New Card', idList: '6512e4a208a3061f8a9e5a6a' };
+      const validParams = { name: 'New Card', idList: '6512e4a208a3061f8a9e5a6a' };
       expect(() => createCardSchema.parse(validParams)).not.toThrow();
       expect(validateCreateCard(validParams)).toEqual(validParams);
     });
 
     it('should reject create card parameters with missing name', () => {
-      const invalidParams = { apiKey: 'someApiKey', token: 'someToken', idList: '6512e4a208a3061f8a9e5a6a' };
+      const invalidParams = { idList: '6512e4a208a3061f8a9e5a6a' };
       expect(() => createCardSchema.parse(invalidParams)).toThrow(ZodError);
       expect(() => validateCreateCard(invalidParams)).toThrow(ZodError);
     });
 
     it('should reject create card parameters with invalid idList', () => {
-      const invalidParams = { apiKey: 'someApiKey', token: 'someToken', name: 'New Card', idList: 'invalid' };
+      const invalidParams = { name: 'New Card', idList: 'invalid' };
       expect(() => createCardSchema.parse(invalidParams)).toThrow(ZodError);
       expect(() => validateCreateCard(invalidParams)).toThrow(ZodError);
     });
 
     it('should validate create card parameters with optional fields', () => {
       const validParams = {
-        apiKey: 'someApiKey',
-        token: 'someToken',
         name: 'New Card',
         desc: 'Description',
         idList: '6512e4a208a3061f8a9e5a6a',
@@ -141,21 +139,19 @@ describe('validation utilities', () => {
 
   describe('updateCardSchema and validateUpdateCard', () => {
     it('should validate correct update card parameters', () => {
-      const validParams = { apiKey: 'someApiKey', token: 'someToken', cardId: '6512e4a208a3061f8a9e5a6a', name: 'Updated Card' };
+      const validParams = { cardId: '6512e4a208a3061f8a9e5a6a', name: 'Updated Card' };
       expect(() => updateCardSchema.parse(validParams)).not.toThrow();
       expect(validateUpdateCard(validParams)).toEqual(validParams);
     });
 
     it('should reject update card parameters with invalid cardId', () => {
-      const invalidParams = { apiKey: 'someApiKey', token: 'someToken', cardId: 'invalid' };
+      const invalidParams = { cardId: 'invalid' };
       expect(() => updateCardSchema.parse(invalidParams)).toThrow(ZodError);
       expect(() => validateUpdateCard(invalidParams)).toThrow(ZodError);
     });
 
     it('should validate update card parameters with optional fields', () => {
       const validParams = {
-        apiKey: 'someApiKey',
-        token: 'someToken',
         cardId: '6512e4a208a3061f8a9e5a6a',
         desc: 'Updated Description',
         closed: true,
@@ -173,19 +169,19 @@ describe('validation utilities', () => {
 
   describe('moveCardSchema and validateMoveCard', () => {
     it('should validate correct move card parameters', () => {
-      const validParams = { apiKey: 'someApiKey', token: 'someToken', cardId: '6512e4a208a3061f8a9e5a6a', idList: '6512e4a208a3061f8a9e5a6b' };
+      const validParams = { cardId: '6512e4a208a3061f8a9e5a6a', idList: '6512e4a208a3061f8a9e5a6b' };
       expect(() => moveCardSchema.parse(validParams)).not.toThrow();
       expect(validateMoveCard(validParams)).toEqual(validParams);
     });
 
     it('should reject move card parameters with invalid cardId', () => {
-      const invalidParams = { apiKey: 'someApiKey', token: 'someToken', cardId: 'invalid', idList: '6512e4a208a3061f8a9e5a6b' };
+      const invalidParams = { cardId: 'invalid', idList: '6512e4a208a3061f8a9e5a6b' };
       expect(() => moveCardSchema.parse(invalidParams)).toThrow(ZodError);
       expect(() => validateMoveCard(invalidParams)).toThrow(ZodError);
     });
 
     it('should reject move card parameters with invalid idList', () => {
-      const invalidParams = { apiKey: 'someApiKey', token: 'someToken', cardId: '6512e4a208a3061f8a9e5a6a', idList: 'invalid' };
+      const invalidParams = { cardId: '6512e4a208a3061f8a9e5a6a', idList: 'invalid' };
       expect(() => moveCardSchema.parse(invalidParams)).toThrow(ZodError);
       expect(() => validateMoveCard(invalidParams)).toThrow(ZodError);
     });
@@ -193,19 +189,19 @@ describe('validation utilities', () => {
 
   describe('getCardSchema and validateGetCard', () => {
     it('should validate correct get card parameters', () => {
-      const validParams = { apiKey: 'someApiKey', token: 'someToken', cardId: '6512e4a208a3061f8a9e5a6a', includeDetails: true };
+      const validParams = { cardId: '6512e4a208a3061f8a9e5a6a', includeDetails: true };
       expect(() => getCardSchema.parse(validParams)).not.toThrow();
       expect(validateGetCard(validParams)).toEqual(validParams);
     });
 
     it('should validate get card parameters with default includeDetails', () => {
-      const validParams = { apiKey: 'someApiKey', token: 'someToken', cardId: '6512e4a208a3061f8a9e5a6a' };
+      const validParams = { cardId: '6512e4a208a3061f8a9e5a6a' };
       expect(() => getCardSchema.parse(validParams)).not.toThrow();
       expect(validateGetCard(validParams)).toEqual({ ...validParams, includeDetails: false });
     });
 
     it('should reject get card parameters with invalid cardId', () => {
-      const invalidParams = { apiKey: 'someApiKey', token: 'someToken', cardId: 'invalid' };
+      const invalidParams = { cardId: 'invalid' };
       expect(() => getCardSchema.parse(invalidParams)).toThrow(ZodError);
       expect(() => validateGetCard(invalidParams)).toThrow(ZodError);
     });
@@ -213,13 +209,13 @@ describe('validation utilities', () => {
 
   describe('deleteCardSchema and validateDeleteCard', () => {
     it('should validate correct delete card parameters', () => {
-      const validParams = { apiKey: 'someApiKey', token: 'someToken', cardId: '6512e4a208a3061f8a9e5a6a' };
+      const validParams = { cardId: '6512e4a208a3061f8a9e5a6a' };
       expect(() => deleteCardSchema.parse(validParams)).not.toThrow();
       expect(validateDeleteCard(validParams)).toEqual(validParams);
     });
 
     it('should reject delete card parameters with invalid cardId', () => {
-      const invalidParams = { apiKey: 'someApiKey', token: 'someToken', cardId: 'invalid' };
+      const invalidParams = { cardId: 'invalid' };
       expect(() => deleteCardSchema.parse(invalidParams)).toThrow(ZodError);
       expect(() => validateDeleteCard(invalidParams)).toThrow(ZodError);
     });

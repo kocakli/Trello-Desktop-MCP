@@ -76,9 +76,15 @@ A Model Context Protocol (MCP) server that provides comprehensive Trello integra
        }
      }
    }
-   ```
+```
 
 6. **Restart Claude Desktop**
+
+### Credential handling
+
+- Every tool now reads credentials through environment variables (`TRELLO_API_KEY` / `TRELLO_TOKEN`) so you never need to pass them manually when calling a tool from Claude.
+- If you call the MCP server outside of Claude (e.g., direct HTTP requests), you can still override the credentials per request by supplying `apiKey` and `token`, but they’re optional and only needed when you want to use a different Trello account.
+- The server validates credentials on each call, so misconfigured environment variables still surface clean errors that explain what’s missing.
 
 ## Available Tools
 

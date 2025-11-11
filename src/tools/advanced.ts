@@ -1,12 +1,10 @@
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 import { TrelloClient } from '../trello/client.js';
-import { formatValidationError } from '../utils/validation.js';
+import { formatValidationError, extractCredentials } from '../utils/validation.js';
 
 const validateGetBoardCards = (args: unknown) => {
   const schema = z.object({
-    apiKey: z.string().min(1, 'API key is required'),
-    token: z.string().min(1, 'Token is required'),
     boardId: z.string().regex(/^[a-f0-9]{24}$/, 'Invalid board ID format'),
     attachments: z.string().optional(),
     members: z.string().optional(),
@@ -18,8 +16,6 @@ const validateGetBoardCards = (args: unknown) => {
 
 const validateGetCardActions = (args: unknown) => {
   const schema = z.object({
-    apiKey: z.string().min(1, 'API key is required'),
-    token: z.string().min(1, 'Token is required'),
     cardId: z.string().regex(/^[a-f0-9]{24}$/, 'Invalid card ID format'),
     filter: z.string().optional(),
     limit: z.number().min(1).max(1000).optional()
@@ -30,8 +26,6 @@ const validateGetCardActions = (args: unknown) => {
 
 const validateGetCardAttachments = (args: unknown) => {
   const schema = z.object({
-    apiKey: z.string().min(1, 'API key is required'),
-    token: z.string().min(1, 'Token is required'),
     cardId: z.string().regex(/^[a-f0-9]{24}$/, 'Invalid card ID format'),
     fields: z.array(z.string()).optional()
   });
@@ -41,8 +35,6 @@ const validateGetCardAttachments = (args: unknown) => {
 
 const validateGetCardChecklists = (args: unknown) => {
   const schema = z.object({
-    apiKey: z.string().min(1, 'API key is required'),
-    token: z.string().min(1, 'Token is required'),
     cardId: z.string().regex(/^[a-f0-9]{24}$/, 'Invalid card ID format'),
     checkItems: z.string().optional(),
     fields: z.array(z.string()).optional()
@@ -53,8 +45,6 @@ const validateGetCardChecklists = (args: unknown) => {
 
 const validateGetBoardMembers = (args: unknown) => {
   const schema = z.object({
-    apiKey: z.string().min(1, 'API key is required'),
-    token: z.string().min(1, 'Token is required'),
     boardId: z.string().regex(/^[a-f0-9]{24}$/, 'Invalid board ID format')
   });
   
@@ -63,8 +53,6 @@ const validateGetBoardMembers = (args: unknown) => {
 
 const validateGetBoardLabels = (args: unknown) => {
   const schema = z.object({
-    apiKey: z.string().min(1, 'API key is required'),
-    token: z.string().min(1, 'Token is required'),
     boardId: z.string().regex(/^[a-f0-9]{24}$/, 'Invalid board ID format')
   });
   
@@ -77,14 +65,6 @@ export const trelloGetBoardCardsTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       boardId: {
         type: 'string',
         description: 'ID of the board to get cards from (you can get this from list_boards)',
@@ -109,14 +89,15 @@ export const trelloGetBoardCardsTool: Tool = {
         default: 'open'
       }
     },
-    required: ['apiKey', 'token', 'boardId']
+    required: ['boardId']
   }
 };
 
 export async function handleTrelloGetBoardCards(args: unknown) {
   try {
-    const { apiKey, token, boardId, attachments, members, filter } = validateGetBoardCards(args);
-    const client = new TrelloClient({ apiKey, token });
+    const { credentials, params } = extractCredentials(args);
+    const { boardId, attachments, members, filter } = validateGetBoardCards(params);
+    const client = new TrelloClient(credentials);
     
     const response = await client.getBoardCards(boardId, {
       ...(attachments && { attachments }),
@@ -193,14 +174,6 @@ export const trelloGetCardActionsTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       cardId: {
         type: 'string',
         description: 'ID of the card to get actions for',
@@ -220,14 +193,15 @@ export const trelloGetCardActionsTool: Tool = {
         default: 50
       }
     },
-    required: ['apiKey', 'token', 'cardId']
+    required: ['cardId']
   }
 };
 
 export async function handleTrelloGetCardActions(args: unknown) {
   try {
-    const { apiKey, token, cardId, filter, limit } = validateGetCardActions(args);
-    const client = new TrelloClient({ apiKey, token });
+    const { credentials, params } = extractCredentials(args);
+    const { cardId, filter, limit } = validateGetCardActions(params);
+    const client = new TrelloClient(credentials);
     
     const response = await client.getCardActions(cardId, {
       ...(filter && { filter }),
@@ -296,14 +270,6 @@ export const trelloGetCardAttachmentsTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       cardId: {
         type: 'string',
         description: 'ID of the card to get attachments for',
@@ -315,14 +281,15 @@ export const trelloGetCardAttachmentsTool: Tool = {
         description: 'Optional: specific fields to include (e.g., ["name", "url", "mimeType", "date"])'
       }
     },
-    required: ['apiKey', 'token', 'cardId']
+    required: ['cardId']
   }
 };
 
 export async function handleTrelloGetCardAttachments(args: unknown) {
   try {
-    const { apiKey, token, cardId, fields } = validateGetCardAttachments(args);
-    const client = new TrelloClient({ apiKey, token });
+    const { credentials, params } = extractCredentials(args);
+    const { cardId, fields } = validateGetCardAttachments(params);
+    const client = new TrelloClient(credentials);
     
     const response = await client.getCardAttachments(cardId, {
       ...(fields && { fields })
@@ -383,14 +350,6 @@ export const trelloGetCardChecklistsTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       cardId: {
         type: 'string',
         description: 'ID of the card to get checklists for',
@@ -408,14 +367,15 @@ export const trelloGetCardChecklistsTool: Tool = {
         description: 'Optional: specific fields to include (e.g., ["name", "pos"])'
       }
     },
-    required: ['apiKey', 'token', 'cardId']
+    required: ['cardId']
   }
 };
 
 export async function handleTrelloGetCardChecklists(args: unknown) {
   try {
-    const { apiKey, token, cardId, checkItems, fields } = validateGetCardChecklists(args);
-    const client = new TrelloClient({ apiKey, token });
+    const { credentials, params } = extractCredentials(args);
+    const { cardId, checkItems, fields } = validateGetCardChecklists(params);
+    const client = new TrelloClient(credentials);
     
     const response = await client.getCardChecklists(cardId, {
       ...(checkItems && { checkItems }),
@@ -475,28 +435,21 @@ export const trelloGetBoardMembersTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       boardId: {
         type: 'string',
         description: 'ID of the board to get members for',
         pattern: '^[a-f0-9]{24}$'
       }
     },
-    required: ['apiKey', 'token', 'boardId']
+    required: ['boardId']
   }
 };
 
 export async function handleTrelloGetBoardMembers(args: unknown) {
   try {
-    const { apiKey, token, boardId } = validateGetBoardMembers(args);
-    const client = new TrelloClient({ apiKey, token });
+    const { credentials, params } = extractCredentials(args);
+    const { boardId } = validateGetBoardMembers(params);
+    const client = new TrelloClient(credentials);
     
     const response = await client.getBoardMembers(boardId);
     const members = response.data;
@@ -549,28 +502,21 @@ export const trelloGetBoardLabelsTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       boardId: {
         type: 'string',
         description: 'ID of the board to get labels for',
         pattern: '^[a-f0-9]{24}$'
       }
     },
-    required: ['apiKey', 'token', 'boardId']
+    required: ['boardId']
   }
 };
 
 export async function handleTrelloGetBoardLabels(args: unknown) {
   try {
-    const { apiKey, token, boardId } = validateGetBoardLabels(args);
-    const client = new TrelloClient({ apiKey, token });
+    const { credentials, params } = extractCredentials(args);
+    const { boardId } = validateGetBoardLabels(params);
+    const client = new TrelloClient(credentials);
     
     const response = await client.getBoardLabels(boardId);
     const labels = response.data;

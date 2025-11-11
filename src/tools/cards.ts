@@ -6,7 +6,8 @@ import {
   validateUpdateCard, 
   validateMoveCard, 
   validateGetCard,
-  formatValidationError 
+  formatValidationError,
+  extractCredentials
 } from '../utils/validation.js';
 
 export const createCardTool: Tool = {
@@ -15,14 +16,6 @@ export const createCardTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       name: {
         type: 'string',
         description: 'Name/title of the card (what the task or item is about)'
@@ -65,17 +58,16 @@ export const createCardTool: Tool = {
         description: 'Optional array of label IDs to categorize the card'
       }
     },
-    required: ['apiKey', 'token', 'name', 'idList']
+    required: ['name', 'idList']
   }
 };
 
 export async function handleCreateCard(args: unknown) {
   try {
-    const cardData = validateCreateCard(args);
-    const { apiKey, token, ...createData } = cardData;
-    
-    const client = new TrelloClient({ apiKey, token });
-    const response = await client.createCard(createData);
+    const { credentials, params } = extractCredentials(args);
+    const cardData = validateCreateCard(params);
+    const client = new TrelloClient(credentials);
+    const response = await client.createCard(cardData);
     const card = response.data;
     
     const result = {
@@ -137,14 +129,6 @@ export const updateCardTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       cardId: {
         type: 'string',
         description: 'ID of the card to update (you can get this from board details or card searches)',
@@ -184,16 +168,15 @@ export const updateCardTool: Tool = {
         description: 'Change position in the list: "top", "bottom", or specific number'
       }
     },
-    required: ['apiKey', 'token', 'cardId']
+    required: ['cardId']
   }
 };
 
 export async function handleUpdateCard(args: unknown) {
   try {
-    const updateData = validateUpdateCard(args);
-    const { apiKey, token, cardId, ...updates } = updateData;
-    
-    const client = new TrelloClient({ apiKey, token });
+    const { credentials, params } = extractCredentials(args);
+    const { cardId, ...updates } = validateUpdateCard(params);
+    const client = new TrelloClient(credentials);
     const response = await client.updateCard(cardId, updates);
     const card = response.data;
     
@@ -252,14 +235,6 @@ export const moveCardTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       cardId: {
         type: 'string',
         description: 'ID of the card to move (you can get this from board details or card searches)',
@@ -278,16 +253,15 @@ export const moveCardTool: Tool = {
         description: 'Position in the destination list: "top", "bottom", or specific number'
       }
     },
-    required: ['apiKey', 'token', 'cardId', 'idList']
+    required: ['cardId', 'idList']
   }
 };
 
 export async function handleMoveCard(args: unknown) {
   try {
-    const moveData = validateMoveCard(args);
-    const { apiKey, token, cardId, ...moveParams } = moveData;
-    
-    const client = new TrelloClient({ apiKey, token });
+    const { credentials, params } = extractCredentials(args);
+    const { cardId, ...moveParams } = validateMoveCard(params);
+    const client = new TrelloClient(credentials);
     const response = await client.moveCard(cardId, moveParams);
     const card = response.data;
     
@@ -337,14 +311,6 @@ export const getCardTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       cardId: {
         type: 'string',
         description: 'ID of the card to retrieve (you can get this from board details or searches)',
@@ -356,15 +322,15 @@ export const getCardTool: Tool = {
         default: false
       }
     },
-    required: ['apiKey', 'token', 'cardId']
+    required: ['cardId']
   }
 };
 
 export async function handleGetCard(args: unknown) {
   try {
-    const { apiKey, token, cardId, includeDetails } = validateGetCard(args);
-    
-    const client = new TrelloClient({ apiKey, token });
+    const { credentials, params } = extractCredentials(args);
+    const { cardId, includeDetails } = validateGetCard(params);
+    const client = new TrelloClient(credentials);
     const response = await client.getCard(cardId, includeDetails);
     const card = response.data;
     

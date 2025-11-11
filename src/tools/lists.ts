@@ -1,12 +1,10 @@
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 import { TrelloClient } from '../trello/client.js';
-import { formatValidationError } from '../utils/validation.js';
+import { formatValidationError, extractCredentials } from '../utils/validation.js';
 
 const validateGetListCards = (args: unknown) => {
   const schema = z.object({
-    apiKey: z.string().min(1, 'API key is required'),
-    token: z.string().min(1, 'Token is required'),
     listId: z.string().regex(/^[a-f0-9]{24}$/, 'Invalid list ID format'),
     filter: z.enum(['all', 'open', 'closed']).optional(),
     fields: z.array(z.string()).optional()
@@ -17,8 +15,6 @@ const validateGetListCards = (args: unknown) => {
 
 const validateCreateList = (args: unknown) => {
   const schema = z.object({
-    apiKey: z.string().min(1, 'API key is required'),
-    token: z.string().min(1, 'Token is required'),
     name: z.string().min(1, 'List name is required'),
     idBoard: z.string().regex(/^[a-f0-9]{24}$/, 'Invalid board ID format'),
     pos: z.union([z.number().min(0), z.enum(['top', 'bottom'])]).optional()
@@ -29,8 +25,6 @@ const validateCreateList = (args: unknown) => {
 
 const validateAddComment = (args: unknown) => {
   const schema = z.object({
-    apiKey: z.string().min(1, 'API key is required'),
-    token: z.string().min(1, 'Token is required'),
     cardId: z.string().regex(/^[a-f0-9]{24}$/, 'Invalid card ID format'),
     text: z.string().min(1, 'Comment text is required')
   });
@@ -44,14 +38,6 @@ export const trelloGetListCardsTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       listId: {
         type: 'string',
         description: 'ID of the list to get cards from (you can get this from get_lists)',
@@ -69,14 +55,15 @@ export const trelloGetListCardsTool: Tool = {
         description: 'Optional: specific fields to include (e.g., ["name", "desc", "due", "labels", "members"])'
       }
     },
-    required: ['apiKey', 'token', 'listId']
+    required: ['listId']
   }
 };
 
 export async function handleTrelloGetListCards(args: unknown) {
   try {
-    const { apiKey, token, listId, filter, fields } = validateGetListCards(args);
-    const client = new TrelloClient({ apiKey, token });
+    const { credentials, params } = extractCredentials(args);
+    const { listId, filter, fields } = validateGetListCards(params);
+    const client = new TrelloClient(credentials);
     
     const response = await client.getListCards(listId, { 
       ...(filter && { filter }),
@@ -146,14 +133,6 @@ export const trelloCreateListTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       name: {
         type: 'string',
         description: 'Name of the new list (e.g., "To Do", "In Progress", "Done")',
@@ -173,16 +152,15 @@ export const trelloCreateListTool: Tool = {
         default: 'bottom'
       }
     },
-    required: ['apiKey', 'token', 'name', 'idBoard']
+    required: ['name', 'idBoard']
   }
 };
 
 export async function handleTrelloCreateList(args: unknown) {
   try {
-    const listData = validateCreateList(args);
-    const { apiKey, token, ...createData } = listData;
-    
-    const client = new TrelloClient({ apiKey, token });
+    const { credentials, params } = extractCredentials(args);
+    const createData = validateCreateList(params);
+    const client = new TrelloClient(credentials);
     const response = await client.createList({
       name: createData.name,
       idBoard: createData.idBoard,
@@ -236,14 +214,6 @@ export const trelloAddCommentTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       cardId: {
         type: 'string',
         description: 'ID of the card to add comment to (you can get this from board details or searches)',
@@ -255,14 +225,15 @@ export const trelloAddCommentTool: Tool = {
         minLength: 1
       }
     },
-    required: ['apiKey', 'token', 'cardId', 'text']
+    required: ['cardId', 'text']
   }
 };
 
 export async function handleTrelloAddComment(args: unknown) {
   try {
-    const { apiKey, token, cardId, text } = validateAddComment(args);
-    const client = new TrelloClient({ apiKey, token });
+    const { credentials, params } = extractCredentials(args);
+    const { cardId, text } = validateAddComment(params);
+    const client = new TrelloClient(credentials);
     
     const response = await client.addCommentToCard(cardId, text);
     const comment = response.data;

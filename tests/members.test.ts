@@ -45,12 +45,12 @@ describe('Members Tool', () => {
       expect(result.isError).toBeUndefined();
     });
 
-    test('should handle validation error for missing apiKey', async () => {
-      const args = { token: 'testToken' };
+    test('should handle validation error for invalid filter', async () => {
+      const args = { apiKey: 'testKey', token: 'testToken', filter: 'invalid' };
       const result = await handleTrelloGetUserBoards(args);
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('Error getting user boards: Validation error: apiKey: Required');
+      expect(result.content[0].text).toContain('Error getting user boards: Validation error: filter: Invalid enum value');
     });
   });
 

@@ -30,12 +30,12 @@ describe('Boards Tool', () => {
       expect(result.isError).toBeUndefined();
     });
 
-    test('should handle validation error for missing apiKey', async () => {
-      const args = { token: 'testToken' };
+    test('should handle validation error for invalid filter value', async () => {
+      const args = { apiKey: 'testKey', token: 'testToken', filter: 'invalid' };
       const result = await handleListBoards(args);
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('Error listing boards: Validation error: apiKey: Required');
+      expect(result.content[0].text).toContain('Error listing boards: Validation error: filter: Invalid enum value');
     });
 
     test('should handle Trello API error', async () => {

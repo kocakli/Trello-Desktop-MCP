@@ -1,12 +1,10 @@
 import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 import { TrelloClient } from '../trello/client.js';
-import { formatValidationError } from '../utils/validation.js';
+import { formatValidationError, extractCredentials } from '../utils/validation.js';
 
 const validateSearch = (args: unknown) => {
   const schema = z.object({
-    apiKey: z.string().min(1, 'API key is required'),
-    token: z.string().min(1, 'Token is required'),
     query: z.string().min(1, 'Search query is required'),
     modelTypes: z.array(z.enum(['boards', 'cards', 'members', 'organizations'])).optional(),
     boardIds: z.array(z.string().regex(/^[a-f0-9]{24}$/, 'Invalid board ID format')).optional(),
@@ -24,14 +22,6 @@ export const trelloSearchTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       query: {
         type: 'string',
         description: 'Search term or phrase to find in Trello content',
@@ -76,14 +66,15 @@ export const trelloSearchTool: Tool = {
         default: 20
       }
     },
-    required: ['apiKey', 'token', 'query']
+    required: ['query']
   }
 };
 
 export async function handleTrelloSearch(args: unknown) {
   try {
-    const { apiKey, token, query, modelTypes, boardIds, boardsLimit, cardsLimit, membersLimit } = validateSearch(args);
-    const client = new TrelloClient({ apiKey, token });
+    const { credentials, params } = extractCredentials(args);
+    const { query, modelTypes, boardIds, boardsLimit, cardsLimit, membersLimit } = validateSearch(params);
+    const client = new TrelloClient(credentials);
     
     const searchOptions = {
       ...(modelTypes && { modelTypes }),
