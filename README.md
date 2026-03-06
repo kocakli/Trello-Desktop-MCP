@@ -148,7 +148,7 @@ A Model Context Protocol (MCP) server that provides comprehensive Trello integra
 
 ## Available Tools
 
-The MCP server provides 19 tools organized into three phases:
+The MCP server provides 25 tools organized into four phases:
 
 ### Phase 1: Essential Tools
 - `trello_search` - Universal search across all Trello content
@@ -172,6 +172,14 @@ The MCP server provides 19 tools organized into three phases:
 - `trello_get_board_members` - Get board members
 - `trello_get_board_labels` - Get board labels
 - `trello_get_member` - Get member details
+
+### Phase 4: Checklist Management
+- `trello_create_checklist` - Create a new checklist on a card
+- `trello_add_checklist_item` - Add items to a checklist
+- `trello_update_checklist_item` - Mark items complete/incomplete, rename, reposition
+- `trello_delete_checklist_item` - Remove items from a checklist
+- `trello_delete_checklist` - Remove an entire checklist
+- `trello_update_checklist` - Rename or reposition a checklist
 
 ### Legacy Tools (Backward Compatibility)
 - `list_boards` - List user's boards
@@ -221,6 +229,7 @@ The server implements the Model Context Protocol (MCP), which provides:
 │   ├── tools/            # Tool implementations
 │   │   ├── boards.ts     # Board-related tools
 │   │   ├── cards.ts      # Card-related tools
+│   │   ├── checklists.ts # Checklist management tools
 │   │   ├── lists.ts      # List-related tools
 │   │   ├── members.ts    # Member-related tools
 │   │   ├── search.ts     # Search functionality

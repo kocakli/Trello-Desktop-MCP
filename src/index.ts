@@ -76,6 +76,21 @@ import {
   handleTrelloGetBoardLabels
 } from './tools/advanced.js';
 
+import {
+  createChecklistTool,
+  handleCreateChecklist,
+  addChecklistItemTool,
+  handleAddChecklistItem,
+  updateChecklistItemTool,
+  handleUpdateChecklistItem,
+  deleteChecklistItemTool,
+  handleDeleteChecklistItem,
+  deleteChecklistTool,
+  handleDeleteChecklist,
+  updateChecklistTool,
+  handleUpdateChecklist
+} from './tools/checklists.js';
+
 // Create server instance
 const server = new Server(
   {
@@ -134,7 +149,14 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       trelloGetCardAttachmentsTool,
       trelloGetCardChecklistsTool,
       trelloGetBoardMembersTool,
-      trelloGetBoardLabelsTool
+      trelloGetBoardLabelsTool,
+      // Checklist management
+      createChecklistTool,
+      addChecklistItemTool,
+      updateChecklistItemTool,
+      deleteChecklistItemTool,
+      deleteChecklistTool,
+      updateChecklistTool
     ]
   };
 });
@@ -234,7 +256,32 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case 'trello_get_board_labels':
         result = await handleTrelloGetBoardLabels(argsWithCredentials);
         break;
-        
+
+      // Checklist management
+      case 'trello_create_checklist':
+        result = await handleCreateChecklist(argsWithCredentials);
+        break;
+
+      case 'trello_add_checklist_item':
+        result = await handleAddChecklistItem(argsWithCredentials);
+        break;
+
+      case 'trello_update_checklist_item':
+        result = await handleUpdateChecklistItem(argsWithCredentials);
+        break;
+
+      case 'trello_delete_checklist_item':
+        result = await handleDeleteChecklistItem(argsWithCredentials);
+        break;
+
+      case 'trello_delete_checklist':
+        result = await handleDeleteChecklist(argsWithCredentials);
+        break;
+
+      case 'trello_update_checklist':
+        result = await handleUpdateChecklist(argsWithCredentials);
+        break;
+
       default:
         throw new Error(`Unknown tool: ${name}`);
     }
