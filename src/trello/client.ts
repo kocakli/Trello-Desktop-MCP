@@ -360,12 +360,37 @@ export class TrelloClient {
       params.checklists = 'all';
       params.badges = 'true';
     }
-    
+
     return this.makeRequest<TrelloCard>(
       `/cards/${cardId}`,
       { params },
       `Get card ${cardId}`
     );
+  }
+
+  async downloadAttachment(url: string): Promise<{ data: string; mimeType: string } | null> {
+    try {
+      const response = await this.fetchWithTimeout(url, {
+        timeout: 30000,
+        headers: {
+          'Authorization': `OAuth oauth_consumer_key="${this.credentials.apiKey}", oauth_token="${this.credentials.token}"`
+        }
+      });
+      if (!response.ok) {
+        logger.warn(`Attachment download failed: ${response.status} ${response.statusText}`, { url });
+        return null;
+      }
+
+      const contentType = response.headers.get('content-type') || 'application/octet-stream';
+      const buffer = await response.arrayBuffer();
+      const base64 = Buffer.from(buffer).toString('base64');
+
+      logger.info(`Downloaded attachment: ${contentType}, ${buffer.byteLength} bytes`);
+      return { data: base64, mimeType: contentType };
+    } catch (error) {
+      logger.error(`Attachment download error`, { url, error: error instanceof Error ? error.message : String(error) });
+      return null;
+    }
   }
 
   async deleteCard(cardId: string): Promise<TrelloApiResponse<void>> {
@@ -561,6 +586,28 @@ export class TrelloClient {
       `/cards/${cardId}/attachments`,
       { params },
       `Get attachments for card ${cardId}`
+    );
+  }
+
+  async createChecklist(cardId: string, name: string): Promise<TrelloApiResponse<any>> {
+    return this.makeRequest<any>(
+      `/cards/${cardId}/checklists`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ name })
+      },
+      `Create checklist "${name}" on card ${cardId}`
+    );
+  }
+
+  async addCheckItem(checklistId: string, name: string): Promise<TrelloApiResponse<any>> {
+    return this.makeRequest<any>(
+      `/checklists/${checklistId}/checkItems`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ name })
+      },
+      `Add check item to checklist ${checklistId}`
     );
   }
 

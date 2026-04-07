@@ -360,14 +360,27 @@ export const getCardTool: Tool = {
   }
 };
 
+const IMAGE_MIME_TYPES = new Set([
+  'image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/svg+xml', 'image/bmp'
+]);
+
 export async function handleGetCard(args: unknown) {
   try {
     const { apiKey, token, cardId, includeDetails } = validateGetCard(args);
-    
+
     const client = new TrelloClient({ apiKey, token });
-    const response = await client.getCard(cardId, includeDetails);
+    const [response, attachmentsResponse] = await Promise.all([
+      client.getCard(cardId, includeDetails),
+      client.getCardAttachments(cardId)
+    ]);
     const card = response.data;
-    
+    const attachments = attachmentsResponse.data;
+
+    // Identify image attachments
+    const imageAttachments = attachments.filter(
+      (a: any) => a.mimeType && IMAGE_MIME_TYPES.has(a.mimeType)
+    );
+
     const result = {
       summary: `Card: ${card.name}`,
       card: {
@@ -382,6 +395,13 @@ export async function handleGetCard(args: unknown) {
         dueComplete: card.dueComplete,
         closed: card.closed,
         lastActivity: card.dateLastActivity,
+        attachments: attachments.map((a: any) => ({
+          id: a.id,
+          name: a.name,
+          url: a.url,
+          mimeType: a.mimeType,
+          isImage: IMAGE_MIME_TYPES.has(a.mimeType || '')
+        })),
         ...(includeDetails && {
           labels: card.labels?.map(label => ({
             id: label.id,
@@ -416,22 +436,51 @@ export async function handleGetCard(args: unknown) {
       },
       rateLimit: response.rateLimit
     };
-    
-    return {
-      content: [
-        {
-          type: 'text' as const,
-          text: JSON.stringify(result, null, 2)
+
+    const content: Array<{ type: 'text'; text: string } | { type: 'image'; data: string; mimeType: string }> = [
+      {
+        type: 'text' as const,
+        text: JSON.stringify(result, null, 2)
+      }
+    ];
+
+    // Download and include image attachments as image content blocks
+    const downloadResults: string[] = [];
+    if (imageAttachments.length > 0) {
+      const downloads = await Promise.all(
+        imageAttachments.map((a: any) => client.downloadAttachment(a.url))
+      );
+
+      for (let i = 0; i < imageAttachments.length; i++) {
+        const downloaded = downloads[i];
+        const attachment = imageAttachments[i];
+        if (downloaded) {
+          content.push({
+            type: 'image' as const,
+            data: downloaded.data,
+            mimeType: downloaded.mimeType
+          });
+          downloadResults.push(`✓ ${attachment.name}: ${downloaded.mimeType}, ${Math.round(downloaded.data.length * 3/4 / 1024)}KB`);
+        } else {
+          downloadResults.push(`✗ ${attachment.name}: download failed (url: ${attachment.url})`);
         }
-      ]
-    };
+      }
+    }
+
+    // Append download status to the text block
+    if (downloadResults.length > 0) {
+      result.summary += `\n\nImage downloads (${downloadResults.filter(r => r.startsWith('✓')).length}/${downloadResults.length} succeeded):\n${downloadResults.join('\n')}`;
+    }
+    (content[0] as { type: 'text'; text: string }).text = JSON.stringify(result, null, 2);
+
+    return { content };
   } catch (error) {
-    const errorMessage = error instanceof z.ZodError 
+    const errorMessage = error instanceof z.ZodError
       ? formatValidationError(error)
-      : error instanceof Error 
-        ? error.message 
+      : error instanceof Error
+        ? error.message
         : 'Unknown error occurred';
-        
+
     return {
       content: [
         {
