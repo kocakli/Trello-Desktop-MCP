@@ -21,7 +21,7 @@ There is no test runner, linter, or formatter configured. Validate changes with 
 
 ### Entry Point & Protocol
 
-`src/index.ts` is the MCP server entry point. It reads credentials from env vars, registers 19 tools, and routes `CallToolRequest` to handler functions via a switch statement. Credentials are automatically injected into every tool handler call. **No console output is allowed** — stdout is reserved for JSON-RPC.
+`src/index.ts` is the MCP server entry point. It reads credentials from env vars, registers 19 tools, and routes `CallToolRequest` to handler functions via a switch statement. Credentials are automatically injected into every tool handler call. **stdout is reserved for JSON-RPC** — use `console.error` (stderr) only for fatal startup diagnostics (e.g. missing env).
 
 ### Tool Modules
 

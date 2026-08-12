@@ -44,14 +44,6 @@ export const trelloGetListCardsTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       listId: {
         type: 'string',
         description: 'ID of the list to get cards from (you can get this from get_lists)',
@@ -69,7 +61,7 @@ export const trelloGetListCardsTool: Tool = {
         description: 'Optional: specific fields to include (e.g., ["name", "desc", "due", "labels", "members"])'
       }
     },
-    required: ['apiKey', 'token', 'listId']
+    required: ['listId']
   }
 };
 
@@ -146,14 +138,6 @@ export const trelloCreateListTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       name: {
         type: 'string',
         description: 'Name of the new list (e.g., "To Do", "In Progress", "Done")',
@@ -173,7 +157,7 @@ export const trelloCreateListTool: Tool = {
         default: 'bottom'
       }
     },
-    required: ['apiKey', 'token', 'name', 'idBoard']
+    required: ['name', 'idBoard']
   }
 };
 
@@ -236,14 +220,6 @@ export const trelloAddCommentTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       cardId: {
         type: 'string',
         description: 'ID of the card to add comment to (you can get this from board details or searches)',
@@ -255,7 +231,7 @@ export const trelloAddCommentTool: Tool = {
         minLength: 1
       }
     },
-    required: ['apiKey', 'token', 'cardId', 'text']
+    required: ['cardId', 'text']
   }
 };
 

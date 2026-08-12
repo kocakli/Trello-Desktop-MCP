@@ -14,14 +14,6 @@ export const listBoardsTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       filter: {
         type: 'string',
         enum: ['all', 'open', 'closed'],
@@ -29,7 +21,7 @@ export const listBoardsTool: Tool = {
         default: 'open'
       }
     },
-    required: ['apiKey', 'token']
+    required: []
   }
 };
 
@@ -88,14 +80,6 @@ export const getBoardDetailsTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       boardId: {
         type: 'string',
         description: 'The ID of the board to retrieve (you can get this from list_boards)',
@@ -107,7 +91,7 @@ export const getBoardDetailsTool: Tool = {
         default: false
       }
     },
-    required: ['apiKey', 'token', 'boardId']
+    required: ['boardId']
   }
 };
 
@@ -189,14 +173,6 @@ export const getListsTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       boardId: {
         type: 'string',
         description: 'The ID of the board to get lists from (you can get this from list_boards)',
@@ -209,7 +185,7 @@ export const getListsTool: Tool = {
         default: 'open'
       }
     },
-    required: ['apiKey', 'token', 'boardId']
+    required: ['boardId']
   }
 };
 

@@ -77,14 +77,6 @@ export const trelloGetBoardCardsTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       boardId: {
         type: 'string',
         description: 'ID of the board to get cards from (you can get this from list_boards)',
@@ -109,7 +101,7 @@ export const trelloGetBoardCardsTool: Tool = {
         default: 'open'
       }
     },
-    required: ['apiKey', 'token', 'boardId']
+    required: ['boardId']
   }
 };
 
@@ -193,14 +185,6 @@ export const trelloGetCardActionsTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       cardId: {
         type: 'string',
         description: 'ID of the card to get actions for',
@@ -220,7 +204,7 @@ export const trelloGetCardActionsTool: Tool = {
         default: 50
       }
     },
-    required: ['apiKey', 'token', 'cardId']
+    required: ['cardId']
   }
 };
 
@@ -296,14 +280,6 @@ export const trelloGetCardAttachmentsTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       cardId: {
         type: 'string',
         description: 'ID of the card to get attachments for',
@@ -315,7 +291,7 @@ export const trelloGetCardAttachmentsTool: Tool = {
         description: 'Optional: specific fields to include (e.g., ["name", "url", "mimeType", "date"])'
       }
     },
-    required: ['apiKey', 'token', 'cardId']
+    required: ['cardId']
   }
 };
 
@@ -383,14 +359,6 @@ export const trelloGetCardChecklistsTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       cardId: {
         type: 'string',
         description: 'ID of the card to get checklists for',
@@ -408,7 +376,7 @@ export const trelloGetCardChecklistsTool: Tool = {
         description: 'Optional: specific fields to include (e.g., ["name", "pos"])'
       }
     },
-    required: ['apiKey', 'token', 'cardId']
+    required: ['cardId']
   }
 };
 
@@ -475,21 +443,13 @@ export const trelloGetBoardMembersTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       boardId: {
         type: 'string',
         description: 'ID of the board to get members for',
         pattern: '^[a-f0-9]{24}$'
       }
     },
-    required: ['apiKey', 'token', 'boardId']
+    required: ['boardId']
   }
 };
 
@@ -549,21 +509,13 @@ export const trelloGetBoardLabelsTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       boardId: {
         type: 'string',
         description: 'ID of the board to get labels for',
         pattern: '^[a-f0-9]{24}$'
       }
     },
-    required: ['apiKey', 'token', 'boardId']
+    required: ['boardId']
   }
 };
 

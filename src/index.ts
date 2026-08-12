@@ -14,8 +14,16 @@ import {
 const TRELLO_API_KEY = process.env.TRELLO_API_KEY;
 const TRELLO_TOKEN = process.env.TRELLO_TOKEN;
 
-// No console output in MCP mode - only JSON-RPC on stdout!
+// stderr only — stdout must stay JSON-RPC clean for MCP
 if (!TRELLO_API_KEY || !TRELLO_TOKEN) {
+  const missing = [
+    !TRELLO_API_KEY ? 'TRELLO_API_KEY' : null,
+    !TRELLO_TOKEN ? 'TRELLO_TOKEN' : null,
+  ].filter(Boolean).join(', ');
+  console.error(
+    `[trello-mcp] Missing required env: ${missing}. ` +
+      `Set TRELLO_API_KEY and TRELLO_TOKEN in the environment before starting this process.`
+  );
   process.exit(1);
 }
 

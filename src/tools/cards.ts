@@ -15,14 +15,6 @@ export const createCardTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       name: {
         type: 'string',
         description: 'Name/title of the card (what the task or item is about)'
@@ -65,7 +57,7 @@ export const createCardTool: Tool = {
         description: 'Optional array of label IDs to categorize the card'
       }
     },
-    required: ['apiKey', 'token', 'name', 'idList']
+    required: ['name', 'idList']
   }
 };
 
@@ -137,14 +129,6 @@ export const updateCardTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       cardId: {
         type: 'string',
         description: 'ID of the card to update (you can get this from board details or card searches)',
@@ -184,7 +168,7 @@ export const updateCardTool: Tool = {
         description: 'Change position in the list: "top", "bottom", or specific number'
       }
     },
-    required: ['apiKey', 'token', 'cardId']
+    required: ['cardId']
   }
 };
 
@@ -252,14 +236,6 @@ export const moveCardTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       cardId: {
         type: 'string',
         description: 'ID of the card to move (you can get this from board details or card searches)',
@@ -278,7 +254,7 @@ export const moveCardTool: Tool = {
         description: 'Position in the destination list: "top", "bottom", or specific number'
       }
     },
-    required: ['apiKey', 'token', 'cardId', 'idList']
+    required: ['cardId', 'idList']
   }
 };
 
@@ -337,14 +313,6 @@ export const getCardTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       cardId: {
         type: 'string',
         description: 'ID of the card to retrieve (you can get this from board details or searches)',
@@ -356,7 +324,7 @@ export const getCardTool: Tool = {
         default: false
       }
     },
-    required: ['apiKey', 'token', 'cardId']
+    required: ['cardId']
   }
 };
 

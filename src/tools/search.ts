@@ -24,14 +24,6 @@ export const trelloSearchTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       query: {
         type: 'string',
         description: 'Search term or phrase to find in Trello content',
@@ -76,7 +68,7 @@ export const trelloSearchTool: Tool = {
         default: 20
       }
     },
-    required: ['apiKey', 'token', 'query']
+    required: ['query']
   }
 };
 

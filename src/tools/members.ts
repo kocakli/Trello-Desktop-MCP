@@ -32,14 +32,6 @@ export const trelloGetUserBoardsTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       filter: {
         type: 'string',
         enum: ['all', 'open', 'closed'],
@@ -47,7 +39,7 @@ export const trelloGetUserBoardsTool: Tool = {
         default: 'open'
       }
     },
-    required: ['apiKey', 'token']
+    required: []
   }
 };
 
@@ -125,14 +117,6 @@ export const trelloGetMemberTool: Tool = {
   inputSchema: {
     type: 'object',
     properties: {
-      apiKey: {
-        type: 'string',
-        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
-      },
-      token: {
-        type: 'string',
-        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
-      },
       memberId: {
         type: 'string',
         description: 'ID or username of the member to retrieve (use "me" for current user)',
@@ -156,7 +140,7 @@ export const trelloGetMemberTool: Tool = {
         default: 'all'
       }
     },
-    required: ['apiKey', 'token', 'memberId']
+    required: ['memberId']
   }
 };
 
