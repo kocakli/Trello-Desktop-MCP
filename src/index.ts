@@ -72,6 +72,10 @@ import {
   handleTrelloGetCardAttachments,
   trelloGetCardChecklistsTool,
   handleTrelloGetCardChecklists,
+  trelloCreateChecklistTool,
+  handleTrelloCreateChecklist,
+  trelloAddChecklistItemTool,
+  handleTrelloAddChecklistItem,
   trelloGetBoardMembersTool,
   handleTrelloGetBoardMembers,
   trelloGetBoardLabelsTool,
@@ -136,6 +140,8 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       trelloGetCardActionsTool,
       trelloGetCardAttachmentsTool,
       trelloGetCardChecklistsTool,
+      trelloCreateChecklistTool,
+      trelloAddChecklistItemTool,
       trelloGetBoardMembersTool,
       trelloGetBoardLabelsTool
     ]
@@ -233,7 +239,15 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case 'trello_get_card_checklists':
         result = await handleTrelloGetCardChecklists(argsWithCredentials);
         break;
-      
+
+      case 'trello_create_checklist':
+        result = await handleTrelloCreateChecklist(argsWithCredentials);
+        break;
+
+      case 'trello_add_checklist_item':
+        result = await handleTrelloAddChecklistItem(argsWithCredentials);
+        break;
+
       case 'trello_get_board_members':
         result = await handleTrelloGetBoardMembers(argsWithCredentials);
         break;

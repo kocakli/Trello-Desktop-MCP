@@ -51,6 +51,31 @@ const validateGetCardChecklists = (args: unknown) => {
   return schema.parse(args);
 };
 
+const validateCreateChecklist = (args: unknown) => {
+  const schema = z.object({
+    apiKey: z.string().min(1, 'API key is required'),
+    token: z.string().min(1, 'Token is required'),
+    idCard: z.string().regex(/^[a-f0-9]{24}$/, 'Invalid card ID format'),
+    name: z.string().min(1, 'Checklist name is required').max(16384, 'Checklist name too long'),
+    pos: z.union([z.number().min(0), z.enum(['top', 'bottom'])]).optional()
+  });
+
+  return schema.parse(args);
+};
+
+const validateAddChecklistItem = (args: unknown) => {
+  const schema = z.object({
+    apiKey: z.string().min(1, 'API key is required'),
+    token: z.string().min(1, 'Token is required'),
+    idChecklist: z.string().regex(/^[a-f0-9]{24}$/, 'Invalid checklist ID format'),
+    name: z.string().min(1, 'Check item name is required').max(16384, 'Check item name too long'),
+    pos: z.union([z.number().min(0), z.enum(['top', 'bottom'])]).optional(),
+    checked: z.boolean().optional()
+  });
+
+  return schema.parse(args);
+};
+
 const validateGetBoardMembers = (args: unknown) => {
   const schema = z.object({
     apiKey: z.string().min(1, 'API key is required'),
@@ -462,6 +487,187 @@ export async function handleTrelloGetCardChecklists(args: unknown) {
         {
           type: 'text' as const,
           text: `Error getting card checklists: ${errorMessage}`
+        }
+      ],
+      isError: true
+    };
+  }
+}
+
+export const trelloCreateChecklistTool: Tool = {
+  name: 'trello_create_checklist',
+  description: 'Create a new checklist on a Trello card. Use this to break a card down into trackable sub-steps.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      apiKey: {
+        type: 'string',
+        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
+      },
+      token: {
+        type: 'string',
+        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
+      },
+      idCard: {
+        type: 'string',
+        description: 'ID of the card to add the checklist to',
+        pattern: '^[a-f0-9]{24}$'
+      },
+      name: {
+        type: 'string',
+        description: 'Name of the checklist (e.g., "Launch steps")',
+        minLength: 1
+      },
+      pos: {
+        oneOf: [
+          { type: 'number', minimum: 0 },
+          { type: 'string', enum: ['top', 'bottom'] }
+        ],
+        description: 'Position of the checklist on the card: "top", "bottom", or specific number',
+        default: 'bottom'
+      }
+    },
+    required: ['apiKey', 'token', 'idCard', 'name']
+  }
+};
+
+export async function handleTrelloCreateChecklist(args: unknown) {
+  try {
+    const { apiKey, token, idCard, name, pos } = validateCreateChecklist(args);
+    const client = new TrelloClient({ apiKey, token });
+
+    const response = await client.createChecklist({
+      idCard,
+      name,
+      ...(pos !== undefined && { pos })
+    });
+    const checklist = response.data;
+
+    const result = {
+      summary: `Created checklist: ${checklist.name}`,
+      checklist: {
+        id: checklist.id,
+        name: checklist.name,
+        cardId: checklist.idCard,
+        boardId: checklist.idBoard,
+        position: checklist.pos
+      },
+      rateLimit: response.rateLimit
+    };
+
+    return {
+      content: [
+        {
+          type: 'text' as const,
+          text: JSON.stringify(result, null, 2)
+        }
+      ]
+    };
+  } catch (error) {
+    const errorMessage = error instanceof z.ZodError
+      ? formatValidationError(error)
+      : error instanceof Error
+        ? error.message
+        : 'Unknown error occurred';
+
+    return {
+      content: [
+        {
+          type: 'text' as const,
+          text: `Error creating checklist: ${errorMessage}`
+        }
+      ],
+      isError: true
+    };
+  }
+}
+
+export const trelloAddChecklistItemTool: Tool = {
+  name: 'trello_add_checklist_item',
+  description: 'Add an item to an existing Trello checklist. Use this to add a trackable sub-step to a checklist.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      apiKey: {
+        type: 'string',
+        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
+      },
+      token: {
+        type: 'string',
+        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
+      },
+      idChecklist: {
+        type: 'string',
+        description: 'ID of the checklist to add the item to (you can get this from trello_get_card_checklists or trello_create_checklist)',
+        pattern: '^[a-f0-9]{24}$'
+      },
+      name: {
+        type: 'string',
+        description: 'Text of the checklist item',
+        minLength: 1
+      },
+      pos: {
+        oneOf: [
+          { type: 'number', minimum: 0 },
+          { type: 'string', enum: ['top', 'bottom'] }
+        ],
+        description: 'Position of the item in the checklist: "top", "bottom", or specific number',
+        default: 'bottom'
+      },
+      checked: {
+        type: 'boolean',
+        description: 'Whether the item should start checked off',
+        default: false
+      }
+    },
+    required: ['apiKey', 'token', 'idChecklist', 'name']
+  }
+};
+
+export async function handleTrelloAddChecklistItem(args: unknown) {
+  try {
+    const { apiKey, token, idChecklist, name, pos, checked } = validateAddChecklistItem(args);
+    const client = new TrelloClient({ apiKey, token });
+
+    const response = await client.addCheckItem(idChecklist, {
+      name,
+      ...(pos !== undefined && { pos }),
+      ...(checked !== undefined && { checked })
+    });
+    const checkItem = response.data;
+
+    const result = {
+      summary: `Added check item: ${checkItem.name}`,
+      checkItem: {
+        id: checkItem.id,
+        name: checkItem.name,
+        state: checkItem.state,
+        position: checkItem.pos,
+        due: checkItem.due
+      },
+      rateLimit: response.rateLimit
+    };
+
+    return {
+      content: [
+        {
+          type: 'text' as const,
+          text: JSON.stringify(result, null, 2)
+        }
+      ]
+    };
+  } catch (error) {
+    const errorMessage = error instanceof z.ZodError
+      ? formatValidationError(error)
+      : error instanceof Error
+        ? error.message
+        : 'Unknown error occurred';
+
+    return {
+      content: [
+        {
+          type: 'text' as const,
+          text: `Error adding checklist item: ${errorMessage}`
         }
       ],
       isError: true

@@ -145,6 +145,18 @@ export interface MoveCardRequest {
   pos?: number | string | undefined;
 }
 
+export interface CreateChecklistRequest {
+  idCard: string;
+  name: string;
+  pos?: number | string | undefined;
+}
+
+export interface CreateCheckItemRequest {
+  name: string;
+  pos?: number | string | undefined;
+  checked?: boolean | undefined;
+}
+
 export interface UpdateListRequest {
   name?: string | undefined;
   closed?: boolean | undefined;
