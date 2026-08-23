@@ -145,6 +145,13 @@ export interface MoveCardRequest {
   pos?: number | string | undefined;
 }
 
+export interface UpdateListRequest {
+  name?: string | undefined;
+  closed?: boolean | undefined;
+  pos?: number | string | undefined;
+  subscribed?: boolean | undefined;
+}
+
 export interface TrelloError {
   message: string;
   error?: string;

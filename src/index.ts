@@ -50,6 +50,8 @@ import {
   handleTrelloGetListCards,
   trelloCreateListTool,
   handleTrelloCreateList,
+  updateListTool,
+  handleUpdateList,
   trelloAddCommentTool,
   handleTrelloAddComment
 } from './tools/lists.js';
@@ -123,6 +125,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       trelloAddCommentTool,
       trelloGetListCardsTool,
       trelloCreateListTool,
+      updateListTool,
       // Original tools (maintained for compatibility)
       listBoardsTool,
       getListsTool,
@@ -195,7 +198,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case 'trello_create_list':
         result = await handleTrelloCreateList(argsWithCredentials);
         break;
-      
+
+      case 'update_list':
+        result = await handleUpdateList(argsWithCredentials);
+        break;
+
       // Original tools (maintained for compatibility)
       case 'list_boards':
         result = await handleListBoards(argsWithCredentials);
