@@ -17,7 +17,7 @@ const validateGetMember = (args: unknown) => {
   const schema = z.object({
     apiKey: z.string().min(1, 'API key is required'),
     token: z.string().min(1, 'Token is required'),
-    memberId: z.string().min(1, 'Member ID is required'),
+    memberId: z.string().regex(/^[A-Za-z0-9_-]{1,64}$/, 'Invalid member ID format'),
     fields: z.array(z.string()).optional(),
     boards: z.string().optional(),
     organizations: z.string().optional()
@@ -136,7 +136,7 @@ export const trelloGetMemberTool: Tool = {
       memberId: {
         type: 'string',
         description: 'ID or username of the member to retrieve (use "me" for current user)',
-        minLength: 1
+        pattern: '^[A-Za-z0-9_-]{1,64}$'
       },
       fields: {
         type: 'array',

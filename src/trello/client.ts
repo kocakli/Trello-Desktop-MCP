@@ -9,6 +9,10 @@ import type {
   UpdateCardRequest,
   MoveCardRequest,
   UpdateListRequest,
+  CreateChecklistRequest,
+  CreateCheckItemRequest,
+  TrelloChecklist,
+  TrelloCheckItem,
   TrelloError,
   RateLimitInfo,
   TrelloApiResponse
@@ -73,6 +77,17 @@ export class TrelloClient {
     }
     
     return url.toString();
+  }
+
+  private sanitizeUrlForTelemetry(url: string): string {
+    try {
+      const parsed = new URL(url);
+      parsed.searchParams.delete('key');
+      parsed.searchParams.delete('token');
+      return parsed.toString();
+    } catch {
+      return url;
+    }
   }
 
   private extractRateLimitInfo(response: Response): RateLimitInfo | undefined {
@@ -213,7 +228,7 @@ export class TrelloClient {
           rateLimit
         });
         
-        insights.trackDependency('HTTP', `Trello API ${operation}`, url, duration, true, response.status.toString(), {
+        insights.trackDependency('HTTP', `Trello API ${operation}`, this.sanitizeUrlForTelemetry(url), duration, true, response.status.toString(), {
           statusCode: response.status.toString(),
           rateLimit: rateLimit?.remaining?.toString()
         });
@@ -251,7 +266,7 @@ export class TrelloClient {
           duration: `${duration}ms`
         });
         
-        insights.trackDependency('HTTP', `Trello API ${operation}`, url, duration, false, trelloError.status?.toString() || '500', {
+        insights.trackDependency('HTTP', `Trello API ${operation}`, this.sanitizeUrlForTelemetry(url), duration, false, trelloError.status?.toString() || '500', {
           error: trelloError.message,
           statusCode: trelloError.status?.toString() || '500'
         });
@@ -573,6 +588,28 @@ export class TrelloClient {
       `/cards/${cardId}/attachments`,
       { params },
       `Get attachments for card ${cardId}`
+    );
+  }
+
+  async createChecklist(checklistData: CreateChecklistRequest): Promise<TrelloApiResponse<TrelloChecklist>> {
+    return this.makeRequest<TrelloChecklist>(
+      '/checklists',
+      {
+        method: 'POST',
+        body: JSON.stringify(checklistData)
+      },
+      `Create checklist "${checklistData.name}"`
+    );
+  }
+
+  async addCheckItem(checklistId: string, itemData: CreateCheckItemRequest): Promise<TrelloApiResponse<TrelloCheckItem>> {
+    return this.makeRequest<TrelloCheckItem>(
+      `/checklists/${checklistId}/checkItems`,
+      {
+        method: 'POST',
+        body: JSON.stringify(itemData)
+      },
+      `Add check item "${itemData.name}"`
     );
   }
 
