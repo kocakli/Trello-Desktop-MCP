@@ -27,6 +27,20 @@ const validateCreateList = (args: unknown) => {
   return schema.parse(args);
 };
 
+const validateUpdateList = (args: unknown) => {
+  const schema = z.object({
+    apiKey: z.string().min(1, 'API key is required'),
+    token: z.string().min(1, 'Token is required'),
+    listId: z.string().regex(/^[a-f0-9]{24}$/, 'Invalid list ID format'),
+    name: z.string().min(1, 'List name cannot be empty').optional(),
+    closed: z.boolean().optional(),
+    pos: z.union([z.number().min(0), z.enum(['top', 'bottom'])]).optional(),
+    subscribed: z.boolean().optional()
+  });
+
+  return schema.parse(args);
+};
+
 const validateAddComment = (args: unknown) => {
   const schema = z.object({
     apiKey: z.string().min(1, 'API key is required'),
@@ -223,6 +237,98 @@ export async function handleTrelloCreateList(args: unknown) {
         {
           type: 'text' as const,
           text: `Error creating list: ${errorMessage}`
+        }
+      ],
+      isError: true
+    };
+  }
+}
+
+export const updateListTool: Tool = {
+  name: 'update_list',
+  description: 'Update properties of an existing Trello list. Use this to rename a list, archive/unarchive it (closed), or reposition it on the board.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      apiKey: {
+        type: 'string',
+        description: 'Trello API key (automatically provided by Claude.app from your stored credentials)'
+      },
+      token: {
+        type: 'string',
+        description: 'Trello API token (automatically provided by Claude.app from your stored credentials)'
+      },
+      listId: {
+        type: 'string',
+        description: 'ID of the list to update (you can get this from get_lists)',
+        pattern: '^[a-f0-9]{24}$'
+      },
+      name: {
+        type: 'string',
+        description: 'New name for the list',
+        minLength: 1
+      },
+      closed: {
+        type: 'boolean',
+        description: 'Set to true to archive the list, false to unarchive'
+      },
+      pos: {
+        oneOf: [
+          { type: 'number', minimum: 0 },
+          { type: 'string', enum: ['top', 'bottom'] }
+        ],
+        description: 'Change position on the board: "top", "bottom", or specific number'
+      },
+      subscribed: {
+        type: 'boolean',
+        description: 'Whether the current user is subscribed to notifications for this list'
+      }
+    },
+    required: ['apiKey', 'token', 'listId']
+  }
+};
+
+export async function handleUpdateList(args: unknown) {
+  try {
+    const { apiKey, token, listId, ...updates } = validateUpdateList(args);
+    const client = new TrelloClient({ apiKey, token });
+
+    const response = await client.updateList(listId, updates);
+    const list = response.data;
+
+    const result = {
+      summary: `Updated list: ${list.name}`,
+      list: {
+        id: list.id,
+        name: list.name,
+        boardId: list.idBoard,
+        position: list.pos,
+        closed: list.closed,
+        subscribed: list.subscribed
+      },
+      rateLimit: response.rateLimit
+    };
+
+    return {
+      content: [
+        {
+          type: 'text' as const,
+          text: JSON.stringify(result, null, 2)
+        }
+      ]
+    };
+  } catch (error) {
+    const errorMessage = error instanceof z.ZodError
+      ? formatValidationError(error)
+      : error instanceof Error
+        ? error.message
+        : 'Unknown error occurred';
+
+    return {
+      content: [
+        {
+          type: 'text' as const,
+          text: `Error updating list: ${errorMessage}`
         }
       ],
       isError: true

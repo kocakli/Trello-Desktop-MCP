@@ -34,6 +34,8 @@ import {
   handleTrelloGetListCards,
   trelloCreateListTool,
   handleTrelloCreateList,
+  updateListTool,
+  handleUpdateList,
   trelloAddCommentTool,
   handleTrelloAddComment
 } from './tools/lists.js';
@@ -105,6 +107,7 @@ export function createMCPServer() {
         trelloAddCommentTool,
         trelloGetListCardsTool,
         trelloCreateListTool,
+        updateListTool,
         // Original tools (maintained for compatibility)
         listBoardsTool,
         getListsTool,
@@ -170,7 +173,10 @@ export function createMCPServer() {
       
       case 'trello_create_list':
         return await handleTrelloCreateList(args);
-      
+
+      case 'update_list':
+        return await handleUpdateList(args);
+
       // Original tools (maintained for compatibility)
       case 'list_boards':
         return await handleListBoards(args);

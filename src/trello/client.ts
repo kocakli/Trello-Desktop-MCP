@@ -1,13 +1,14 @@
 import { logger } from '../utils/logger.js';
 import { insights } from '../utils/appInsights.js';
-import type { 
-  TrelloCredentials, 
-  TrelloBoard, 
-  TrelloList, 
-  TrelloCard, 
+import type {
+  TrelloCredentials,
+  TrelloBoard,
+  TrelloList,
+  TrelloCard,
   CreateCardRequest,
   UpdateCardRequest,
   MoveCardRequest,
+  UpdateListRequest,
   TrelloError,
   RateLimitInfo,
   TrelloApiResponse
@@ -469,6 +470,17 @@ export class TrelloClient {
         body: JSON.stringify(listData)
       },
       `Create list "${listData.name}"`
+    );
+  }
+
+  async updateList(listId: string, updates: UpdateListRequest): Promise<TrelloApiResponse<TrelloList>> {
+    return this.makeRequest<TrelloList>(
+      `/lists/${listId}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(updates)
+      },
+      `Update list ${listId}`
     );
   }
 
