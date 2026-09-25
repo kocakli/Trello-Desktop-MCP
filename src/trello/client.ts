@@ -400,7 +400,7 @@ export class TrelloClient {
     membersLimit?: number;
   }): Promise<TrelloApiResponse<any>> {
     const params: Record<string, string> = {
-      query: encodeURIComponent(query)
+      query
     };
     
     if (options?.modelTypes) {
